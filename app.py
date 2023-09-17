@@ -1,3 +1,5 @@
+# app.py
+
 import os
 import streamlit as st
 from langchain.llms import OpenAI as LangchainOpenAI
@@ -6,50 +8,40 @@ from langchain.llms import OpenAI as LangchainOpenAI
 os.environ['OPENAI_API_KEY'] = st.secrets["auth"]
 
 # Configuration de la page
-st.set_page_config(page_title='Gestion de Location de Chats et Chiens pour Promenades', page_icon="🐾", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title='Générateur de Messages', page_icon="🤖", layout="wide", initial_sidebar_state="expanded")
 
 # Titre avec emoji
-st.title('Gestion de Location de Chats et Chiens pour Promenades 🐾')
+st.title('Générateur de Messages 🤖')
 
-# Paragraphe introductif
+# Introduction
 st.write("""
-Bienvenue sur notre plateforme de gestion de location d'animaux pour des promenades. 
-Vous pouvez choisir entre différents types de chats et de chiens, sélectionner la durée de la promenade, et même ajouter des services supplémentaires.
+Ce générateur est conçu pour aider à rédiger des messages adaptés à diverses situations. 
+Il suffit de fournir les détails nécessaires, et le générateur produira un message adapté à vos besoins.
 """)
 
-# Catégories et sous-catégories de location
-categories = {
-    "Chats": ["Chaton", "Chat adulte", "Chat âgé"],
-    "Chiens": ["Chiot", "Chien adulte", "Chien âgé"]
-}
+# Sélection de la version de GPT
+gpt_version = st.selectbox('Sélectionnez une version de GPT:', ['gpt-3.5-turbo', 'gpt-4'])
 
-# Sélection de la catégorie et de la sous-catégorie
-categorie = st.selectbox('Sélectionnez une catégorie:', list(categories.keys()))
-sous_categorie = st.selectbox('Sélectionnez une sous-catégorie:', categories[categorie])
+# Saisie du rôle
+role = st.text_input('Indiquez votre rôle:')
 
-# Durée de la promenade
-duree = st.slider("Durée de la promenade (en minutes):", 15, 120, 30)
+# Contexte
+contexte = st.text_area('Décrivez le contexte ou la situation:')
 
-# Services supplémentaires
-services = st.multiselect("Services supplémentaires:", ["Nourriture", "Jouets", "Soins médicaux"])
+# Résultat souhaité
+resultat_souhaite = st.text_area('Quel est le résultat ou l'action souhaitée?')
 
-# Informations de contact
-st.header('Informations de Contact 📞')
-nom = st.text_input('Votre nom complet')
-telephone = st.text_input("Votre numéro de téléphone")
-email = st.text_input("Votre adresse e-mail")
-
-# Générer la réservation
-def generate_booking(categorie, sous_categorie, duree, services, nom, telephone, email):
-    llm = LangchainOpenAI(model_name='gpt-3.5-turbo-16k', temperature=0.2)
-    prompt = f"Générer une réservation pour une promenade avec un {sous_categorie} de la catégorie {categorie} pour une durée de {duree} minutes. Services supplémentaires : {', '.join(services)}. Contact : {nom}, {telephone}, {email}."
+# Générer le message
+def generate_message(gpt_version, role, contexte, resultat_souhaite):
+    llm = LangchainOpenAI(model_name=gpt_version, temperature=0.2)
+    prompt = f"Rôle: {role}. Contexte: {contexte}. Résultat souhaité: {resultat_souhaite}. Générer un message adapté."
     response = llm.predict(prompt)
     return response
 
-if st.button('Confirmer la réservation 🚀'):
-    booking = generate_booking(categorie, sous_categorie, duree, services, nom, telephone, email)
-    st.subheader('Réservation Confirmée 📄')
-    st.text_area("", booking, height=300)
+if st.button('Générer le message 🚀'):
+    message = generate_message(gpt_version, role, contexte, resultat_souhaite)
+    st.subheader('Message Généré 📄')
+    st.text_area("", message, height=300)
 
 # Section d'aide et de support
 st.sidebar.header('Aide & Support 🆘')
